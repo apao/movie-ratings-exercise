@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <h2>Sign In</h2>
+    
+    <form action="/confirm_signin" method="POST">
+      <label>Enter Your Email</label>
+      <input type="text" id="user_email" name="user_email" placeholder="eg. name@domain.com" required>
+      
+      <br>
+
+      <label>Enter Your Password</label>
+      <input type="password" id="user_password" name="user_password" required>
+
+      <br>
+
+      <button class="btn btn-lg btn-primary btn-block" type="submit">Sign In
+      </button>
+
+    </form>
+
+{% endblock %}

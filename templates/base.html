@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+<head>
+  <title>Ratings</title>
+</head>
+
+<body>
+  <h1>Ratings</h1>
+  <hr>
+  {% with messages = get_flashed_messages() %}
+      {% for message in messages %}
+          <div class="alert alert-warning">{{ message }}</div>
+      {% endfor %}
+  {% endwith %}
+
+  {% block content %}
+  {% endblock %}
+
+</body>
+</html>
