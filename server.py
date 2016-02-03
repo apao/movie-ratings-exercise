@@ -31,11 +31,24 @@ def user_list():
     users = User.query.all()
     return render_template("user_list.html", users=users)
 
+@app.route('/checksession')
+def check_session():
+    """Check if user is logged in"""
+
+    if session['username']:
+        user_status = session['username']
+    else:
+        user_status = 'Does Not Exist'
+
+    return user_status
+
+
 @app.route('/signin')
 def sign_in():
     """Allows users to login."""
 
     return render_template("signin.html")
+
 
 @app.route('/confirm_signin', methods=['POST'])
 def confirm_sign_in():
@@ -48,8 +61,10 @@ def confirm_sign_in():
 
     if user:
         if (user.password == password):
-            flash("Successfully logged in.")
-            return redirect('/')
+            session['username'] = username
+            user_id = user.user_id
+            # ERROR TO DEBUG:
+            # return url_for(user_profile, user_id=user_id)
         else:
             flash("Incorrect password. Please try again.")
             return redirect('/signin')
@@ -75,14 +90,35 @@ def confirm_sign_up():
     user_exists = User.query.filter_by(email=username).first()
 
     if user_exists:
-        flash("User already exists. Please login.")
+        flash("User already exists. Please sign in.")
+        return redirect('/signin')
     else:
         user = User(email=username, password=password)
         db.session.add(user)
         db.session.commit()
         flash("Account was successfully created.")
+        session['username'] = username
+        return redirect('/')
 
-    return redirect('/signin')
+@app.route('/signout')
+def signout():
+    """Shows that user has successfully signed out."""
+
+    session['username'] = None
+    flash("Successfully signed out.")
+
+    return redirect('/')
+
+
+# ERROR TO DEBUG:
+# @app.route('/user/<int:user_id>')
+# def user_profile(user_id):
+
+#     user = User.get_user_by_id(user_id)
+
+#     return render_template('user_list.html', user=user)
+
+
 
 
 if __name__ == "__main__":

@@ -27,6 +27,12 @@ class User(db.Model):
         """Represents user object"""
         return "<User ID: %s, Email: %s>" % (self.user_id, self.email)
 
+    @classmethod
+    def get_user_by_id(cls,user_id):
+
+        user = User.query.filter_by(user_id=user_id).first()
+
+        return user
 
 # Put your Movie and Rating model classes here.
 class Movie(db.Model):

@@ -2,10 +2,12 @@
 <html>
 <head>
   <title>Ratings</title>
+  <script src="https://code.jquery.com/jquery.js"></script>
 </head>
 
 <body>
   <h1>Ratings</h1>
+    <span id="user_status"></span>
   <hr>
   {% with messages = get_flashed_messages() %}
       {% for message in messages %}
@@ -15,6 +17,14 @@
 
   {% block content %}
   {% endblock %}
-
+  <script>
+    $.get("/checksession", function(result) {
+        if (result !== 'Does Not Exist') {
+          $('#user_status').html("Signed in as: " + result + "<br><a href=\"/signout\">Sign Out</a>");
+        } else {
+          $('#user_status').html("<a href=\"/signup_form\">Sign Up</a> | <a href=\"/signin\">Sign In</a>");
+        }
+    } );
+  </script>
 </body>
 </html>
