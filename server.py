@@ -2,7 +2,7 @@
 
 from jinja2 import StrictUndefined
 
-from flask import Flask, render_template, redirect, request, flash, session
+from flask import Flask, render_template, redirect, request, flash, session, url_for
 from flask_debugtoolbar import DebugToolbarExtension
 
 from model import User, Rating, Movie, connect_to_db, db
@@ -17,6 +17,7 @@ app.secret_key = "ABC"
 # This is horrible. Fix this so that, instead, it raises an error.
 app.jinja_env.undefined = StrictUndefined
 
+SCORES = [1,2,3,4,5]
 
 @app.route('/')
 def index():
@@ -24,18 +25,49 @@ def index():
 
     return render_template("homepage.html")
 
+
 @app.route('/users')
 def user_list():
     """Show list of users."""
 
     users = User.query.all()
+
     return render_template("user_list.html", users=users)
+
+
+@app.route('/users/<int:user_id>')
+def user_profile(user_id):
+    """Show details about a user."""
+    
+    user = User.get_user_by_id(user_id)
+
+    return render_template('user_detail.html', user=user)
+
+
+@app.route('/movies')
+def movie_list():
+    """Show list of movies."""
+
+    movies = Movie.query.order_by(Movie.title).all()
+
+    return render_template("movie_list.html", movies=movies)
+
+
+@app.route('/movies/<int:movie_id>')
+def movie_details(movie_id):
+    """Show details about a movie."""
+
+    movie = Movie.get_movie_by_id(movie_id)
+    release_date = movie.released_at.strftime("%B %d, %Y")
+
+    return render_template('movie_detail.html', movie=movie, release_date=release_date, scores=SCORES)
+
 
 @app.route('/checksession')
 def check_session():
     """Check if user is logged in"""
 
-    if session['username']:
+    if session.get('username',None):
         user_status = session['username']
     else:
         user_status = 'Does Not Exist'
@@ -63,8 +95,8 @@ def confirm_sign_in():
         if (user.password == password):
             session['username'] = username
             user_id = user.user_id
-            # ERROR TO DEBUG:
-            # return url_for(user_profile, user_id=user_id)
+            return redirect(url_for("user_profile", user_id=user_id)) 
+            # url_for... is same as "/users/" + str(user_id)
         else:
             flash("Incorrect password. Please try again.")
             return redirect('/signin')
@@ -79,6 +111,7 @@ def sign_up():
     """Allow new users to sign up."""
 
     return render_template("signup_form.html")
+
 
 @app.route('/confirm_signup', methods=['POST'])
 def confirm_sign_up():
@@ -100,6 +133,7 @@ def confirm_sign_up():
         session['username'] = username
         return redirect('/')
 
+
 @app.route('/signout')
 def signout():
     """Shows that user has successfully signed out."""
@@ -108,15 +142,6 @@ def signout():
     flash("Successfully signed out.")
 
     return redirect('/')
-
-
-# ERROR TO DEBUG:
-# @app.route('/user/<int:user_id>')
-# def user_profile(user_id):
-
-#     user = User.get_user_by_id(user_id)
-
-#     return render_template('user_list.html', user=user)
 
 
 

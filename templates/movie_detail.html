@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <h2>Movie Details for {{ movie.title }}</h2>
+    <ul>
+      <li>Released on: {{ release_date }}</li>
+      <li>IMDB URL: <a href={{ movie.imdb_url }}>Click here</a></li>
+      <li>List of User Ratings</li>
+      {% for rating in movie.ratings %}
+        <ul>
+          <li>
+              <strong>User {{ rating.user_id }}</strong> | Score: {{ rating.score }}
+          </li>
+        </ul>
+      {% endfor %}
+    </ul>
+      <label>Enter Your Rating</label>
+      {% for score in scores %}
+        <form action="/confirm_rating" method="POST" display="block">
+<!--           <input type="hidden" name="movie_id" value={{ movie.movie_id }}>
+ -->          <input type="hidden" name="score" value={{ score }}>
+          <input type="submit" value={{score}} + "for" {{movie.movie_id}}>
+        </form>
+      {% endfor %}
+      <label>Enter Your Password</label>
+      <input type="password" id="user_password" name="user_password" required>
+
+      <br>
+
+
+{% endblock %}

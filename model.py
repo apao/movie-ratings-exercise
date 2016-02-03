@@ -49,6 +49,13 @@ class Movie(db.Model):
         """Represents movie object"""
         return "<Movie ID: %s, Title: %s>" % (self.movie_id, self.title)
 
+    @classmethod
+    def get_movie_by_id(cls, movie_id):
+
+        movie = Movie.query.filter_by(movie_id=movie_id).first()
+
+        return movie 
+
 
 class Rating(db.Model):
     """Rating on ratings website."""
