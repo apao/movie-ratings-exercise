@@ -106,6 +106,49 @@ def confirm_sign_in():
         return redirect('/signup_form')
 
 
+@app.route('/confirm_signin_to_rate', methods=['POST'])
+def confirm_sign_in_to_rate_movies():
+    """Confirms user login from movie details page."""
+
+    username = request.form.get("user_email")
+    password = request.form.get("user_password")
+
+    user = User.query.filter_by(email=username).first()
+
+    if user:
+        if (user.password == password):
+            session['username'] = username
+            return session['username']
+            # url_for... is same as "/users/" + str(user_id)
+        else:
+            return 'Does Not Exist'
+
+    else:
+        return 'Does Not Exist'
+
+
+@app.route('/update_rating', methods=['POST'])
+def update_rating():
+    """Creates/Updates user rating of a specific movie."""
+
+    username = session["username"]
+    movie_id = request.form.get("movie_id")
+    score = request.form.get("score")
+
+
+    rating_user_id = User.query.filter_by(email=username).first().user_id
+    existing_rating = Rating.query.filter(Rating.user_id == rating_user_id, Rating.movie_id == movie_id).first()
+    rating = Rating(movie_id=int(movie_id), user_id=int(rating_user_id), score=int(score))
+    
+    if existing_rating:
+
+    else:
+        db.session.add(rating)
+    db.session.commit()
+
+    return redirect("/movies")
+
+
 @app.route('/signup_form')
 def sign_up():
     """Allow new users to sign up."""

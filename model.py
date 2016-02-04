@@ -71,7 +71,7 @@ class Rating(db.Model):
     user = db.relationship('User', backref=db.backref('ratings', order_by=rating_id))
 
     def __repr__(self):
-        """Represents user object"""
+        """Represents rating object"""
         return "<Rating ID: %d, Movie ID: %d, User ID: %d, Score: %d>" % (self.rating_id, self.movie_id, self.user_id, self.score)
 
 

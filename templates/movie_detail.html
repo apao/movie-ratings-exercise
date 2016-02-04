@@ -14,18 +14,77 @@
         </ul>
       {% endfor %}
     </ul>
+
+
+    <div id="user_rating_input" style="visibility: hidden">
       <label>Enter Your Rating</label>
       {% for score in scores %}
-        <form action="/confirm_rating" method="POST" display="block">
-<!--           <input type="hidden" name="movie_id" value={{ movie.movie_id }}>
- -->          <input type="hidden" name="score" value={{ score }}>
-          <input type="submit" value={{score}} + "for" {{movie.movie_id}}>
-        </form>
+      <form action="/update_rating" method="POST" style="display:inline">
+          <input type="hidden" name="movie_id" value={{ movie.movie_id }}>
+          <input type="hidden" name="score" value={{ score }}>
+        <input type="submit" value="{{score}}">
+      </form>
       {% endfor %}
+    </div>
+    
+
+    <form id="movie_rating_signin" action="/confirm_signin_to_rate" method="POST">
+      <h3>Sign In to Rate This Movie</h3>
+      <label>Enter Your Email</label>
+      <input type="text" id="user_email" name="user_email" placeholder="eg. name@domain.com" required>
+      <br>
+
       <label>Enter Your Password</label>
       <input type="password" id="user_password" name="user_password" required>
-
       <br>
+
+      <input type="hidden" name="movie_id" value={{ movie.movie_id }}>
+
+      <button class="btn btn-lg btn-primary btn-block" id="sign_in_button" type="submit">Sign In
+      </button>
+    </form>
+    <div id="successmsg"></div>
+    
+
+    <script>
+
+      $.get("/checksession", function(result) {
+        /* if user is signed in */
+        if (result !== 'Does Not Exist') {
+          $('#user_rating_input').removeAttr("style");
+          $('#movie_rating_signin').hide();
+        
+        } else {
+          $('#movie_rating_signin').show();
+          
+          $("#sign_in_button").click(function(evt) {
+            evt.preventDefault()
+            var user_data = {
+              "user_email": $("#user_email").val(),
+              "user_password": $("#user_password").val()
+            }
+            
+            $.post("/confirm_signin_to_rate", user_data, function(result) {
+              if (result !== 'Does Not Exist') {
+                $('#successmsg').html("Successfully logged in!");
+                $('#user_status').html("Signed in as: " + result + "<br><a href=\"/signout\">Sign Out</a>");
+                $('#user_rating_input').removeAttr("style");
+                $('#movie_rating_signin').hide();
+                setTimeout(function() {
+                  $('#successmsg').html("");
+                }, 1500);
+              /* if user is not signed in */
+              } else {
+                $('#successmsg').html("Login Failed. Please try again.");
+              }
+            }); // end of post
+          });
+        }
+      } );
+
+
+
+    </script>
 
 
 {% endblock %}
