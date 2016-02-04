@@ -134,17 +134,20 @@ def update_rating():
     username = session["username"]
     movie_id = request.form.get("movie_id")
     score = request.form.get("score")
+    movie_title = Movie.get_movie_by_id(movie_id).title
 
 
     rating_user_id = User.query.filter_by(email=username).first().user_id
     existing_rating = Rating.query.filter(Rating.user_id == rating_user_id, Rating.movie_id == movie_id).first()
-    rating = Rating(movie_id=int(movie_id), user_id=int(rating_user_id), score=int(score))
     
     if existing_rating:
-
+        existing_rating.score = score
     else:
-        db.session.add(rating)
+        new_rating = Rating(movie_id=int(movie_id), user_id=int(rating_user_id), score=int(score))
+        db.session.add(new_rating)
     db.session.commit()
+
+    flash("Your rating of " + score + " for " + movie_title + " has successfully been recorded.")
 
     return redirect("/movies")
 
