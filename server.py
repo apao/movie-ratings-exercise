@@ -63,6 +63,19 @@ def movie_details(movie_id):
     return render_template('movie_detail.html', movie=movie, release_date=release_date, scores=SCORES)
 
 
+@app.route('/getprediction', methods=['POST'])
+def get_prediction():
+
+    movie_id = request.form.get("movie_id")
+    user = User.query.filter_by(email=(session['username'])).first()
+    print (user)
+
+    movie = Movie.query.get(movie_id)
+    prediction = user.predict_rating(movie)
+
+    return str(round(prediction))
+
+
 @app.route('/checksession')
 def check_session():
     """Check if user is logged in"""

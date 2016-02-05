@@ -25,6 +25,7 @@
         <input type="submit" value="{{score}}">
       </form>
       {% endfor %}
+      <div id="prediction"></div>
     </div>
     
 
@@ -53,6 +54,12 @@
         if (result !== 'Does Not Exist') {
           $('#user_rating_input').removeAttr("style");
           $('#movie_rating_signin').hide();
+          var movie_id = {
+            "movie_id": {{ movie.movie_id }}
+          };
+          $.post('/getprediction', movie_id, function(result) {
+            $('#prediction').html("We predict you'll rate this movie " + result);
+          });
         
         } else {
           $('#movie_rating_signin').show();

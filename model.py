@@ -2,6 +2,8 @@
 
 from flask_sqlalchemy import SQLAlchemy
 
+from correlation import pearson
+
 # This is the connection to the PostgreSQL database; we're getting this through
 # the Flask-SQLAlchemy helper library. On this, we can find the `session`
 # object, where we do most of our interactions (like committing, etc.)
@@ -33,6 +35,55 @@ class User(db.Model):
         user = User.query.filter_by(user_id=user_id).first()
 
         return user
+
+    def similarity(self, other):
+        """Return Pearson rating for user compared to other user."""
+
+        user_ratings = {}
+        paired_ratings = []
+
+        for rating in self.ratings:
+            user_ratings[rating.movie_id] = rating
+
+        for rating in other.ratings:
+            other_user_rating = user_ratings.get(rating.movie_id)
+            if other_user_rating:
+                paired_ratings.append(( other_user_rating.score, rating.score))
+
+        if paired_ratings:
+            return pearson(paired_ratings)
+
+        else:
+            return 0.0
+
+    def predict_rating(self, movie):
+        """Predict user's rating of a movie."""
+
+        other_ratings = movie.ratings
+
+        similarities = [(self.similarity(rating.user), rating)
+                       for rating in other_ratings]
+
+        similarities.sort(reverse=True)
+
+        positive_similarities = [(sim, rating) for sim, rating \
+                                in similarities if sim > 0]
+
+        negative_similarities = [(sim, rating) for sim, rating \
+                                in similarities if sim < 0]
+
+        if not positive_similarities and not negative_similarities:
+            return None
+
+        numerator = sum([r.score * sim for sim, r in positive_similarities]) \
+                    + sum([((r.score - 6) * sim) for sim, r in negative_similarities])
+
+        denominator = sum([abs(sim) for sim, rating in similarities])
+
+        predicted_rating = numerator/denominator
+
+        return predicted_rating
+
 
 # Put your Movie and Rating model classes here.
 class Movie(db.Model):
